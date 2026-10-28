@@ -1,0 +1,40 @@
+# Copy to /etc/xui-sub/config.toml, chmod 600, and fill in the real values.
+
+[server]
+listen = "0.0.0.0"
+port = 443
+cert = "/root/cert/ip/fullchain.pem"
+key = "/root/cert/ip/privkey.pem"
+path_prefix = "/sub/"
+# 3x-ui renews the short-lived IP certificate; re-read the files this often.
+cert_check_interval = 300
+request_timeout = 15
+
+[upstream]
+# Local 3x-ui subscription server. TLS verification is off for this loopback
+# call because the certificate is issued for the public IP, not 127.0.0.1.
+base = "https://127.0.0.1:3770"
+clash_path = "/mihomo/{sub_id}"
+# Panel's raw subscription subPath, e.g. "/your-subpath/{sub_id}".
+raw_path = "/CHANGE_ME/{sub_id}"
+timeout = 6
+verify_tls = false
+# Public address clients use. 3x-ui embeds this (from the Host header) into the
+# generated node addresses. Must not be localhost/127.0.0.1.
+host = "203.0.113.10"
+max_body = 2097152
+max_concurrency = 8
+
+[templates]
+dir = "/etc/xui-sub/templates"
+clash = "clash.yaml.j2"
+
+[branding]
+# Sent as Profile-Title when 3x-ui does not send one. Keep ASCII.
+title = "example.com"
+update_interval = 12
+
+[security]
+# Empty = accept any subId that 3x-ui itself accepts.
+# Fill with the subIds you actually use to lock the endpoint down.
+allowed_tokens = []
